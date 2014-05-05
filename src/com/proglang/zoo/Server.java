@@ -3,12 +3,15 @@ package com.proglang.zoo;
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 public class Server {
     private static final int A = constants.A;
     private static final int Z = constants.Z;
     private static final int numLetters = constants.numLetters;
     private static Account[] accounts;
+    private static ExecutorService mExecutor;
 
     private static void dumpAccounts() {
         // output values:
@@ -30,6 +33,8 @@ public class Server {
         for (int i = A; i <= Z; i++) {
             accounts[i] = new Account(Z-i);
         }
+        
+        mExecutor = Executors.newFixedThreadPool(26);
 
         // read transactions from input file
         String line;
@@ -43,10 +48,13 @@ public class Server {
 
         while ((line = input.readLine()) != null) {
             Worker w = new Worker(accounts, line);
-            w.run();
+            mExecutor.execute(w);
         }
-
-        System.out.println("final values:");
-        dumpAccounts();
+        mExecutor.shutdown();
+        input.close();
+        while (!mExecutor.isTerminated()) {
+        }
+    	System.out.println("final values:");
+    	dumpAccounts();
     }
 }

@@ -108,7 +108,14 @@ public class Worker implements Runnable{
 					    accounts[i].open(true);
 					} catch (TransactionAbortException e) {
 					    // won't happen in sequential version
+						System.out.println("Aborted");
+						run();
 					}
+	    		}
+    		}
+    	}for (int i = 0; i < numLetters; i++){
+    		if (mCachedAccounts[i] != null){
+	    		if (mCachedAccounts[i].hasBeenWriten()) {
 		    		accounts[i].update(mCachedAccounts[i].getValue());
 		    		accounts[i].close();
 	    		}
