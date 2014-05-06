@@ -30,9 +30,12 @@ public class Worker implements Runnable{
         transaction = trans;
     }
 
-    // TO DO: parseAccount currently returns a reference to an account.
-    // You probably want to change it to return a reference to an
-    // account *cache* instead.
+    /**
+     * Takes a string and returns the corresponding 
+     * {@link AccountCache} dereferencing if needed. 
+     * @param name The Letter corresponding to an Account
+     * @return The corresponding AccountCache
+     */
 
     private AccountCache parseAccount(String name) {
         int accountNum = (int) (name.charAt(0)) - (int) 'A';
@@ -51,18 +54,27 @@ public class Worker implements Runnable{
         return a;
     }
 
+    /**
+     * Checks if the string is a number or a letter
+     * to an account and returns the corresponding value
+     * @param name a account or number
+     * @return corresponding number
+     */
     private int parseAccountOrNum(String name) {
         int rtn;
         if (name.charAt(0) >= '0' && name.charAt(0) <= '9') {
             rtn = new Integer(name).intValue();
         } else {
-            //rtn = parseAccount(name).peek();
         	int index = (int) (name.charAt(0)) - (int) 'A';
         	rtn = cachePeek(parseAccount(name), index);
         }
         return rtn;
     }
 
+    /**
+     * Main method that executes a transaction.
+     * Called from a executor thread pool.
+     */
     public void run() {
         // tokenize transaction
         String[] commands = transaction.split(";");
@@ -98,10 +110,24 @@ public class Worker implements Runnable{
     	return accountCache.getValue();
     }
     
+    /**
+     * Initialize the {@link AccountCache} for the needed account.
+     * @param accountCache The Null cache
+     * @param index Place in the cache array the account belongs
+     * @return The initialized AccountCache
+     */
     private AccountCache initCacheAccount(AccountCache accountCache, int index){
     	return new AccountCache(accounts[index].peek(), index);
     }
 
+    /**
+     * Write the cached values to the Accounts.
+     * The cached accounts are checked to see if they
+     * have been updated and need to be written. They 
+     * are then verified and updated. If a Transaction 
+     * exception occurs, the transaction is run again 
+     * so that the new value can be used and commited.
+     */
     private void commitCachedTransactions(){
     	ArrayList<AccountCache> transactions = new ArrayList<AccountCache>();
     	for (int i = 0; i < numLetters; i++){
@@ -122,7 +148,6 @@ public class Worker implements Runnable{
 		    		accounts[i].close();
 				} catch (TransactionAbortException e) {
 				    // won't happen in sequential version
-					System.out.println("Aborted");
 					run();
 				}
 	    	}

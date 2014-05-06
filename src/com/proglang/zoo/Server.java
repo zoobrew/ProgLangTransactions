@@ -13,6 +13,9 @@ public class Server {
     private static Account[] accounts;
     private static ExecutorService mExecutor;
 
+    /**
+     * Print out a summary of all the accounts
+     */
     private static void dumpAccounts() {
         // output values:
         for (int i = A; i <= Z; i++) {
@@ -27,6 +30,12 @@ public class Server {
         }
     }
 
+    /**
+     * Read in the transactions from the given
+     * argument file. Execute the transactions
+     * in parallel then print the account
+     * summary.
+     */
     public static void main (String args[])
         throws IOException {
         accounts = new Account[numLetters];
@@ -34,17 +43,12 @@ public class Server {
             accounts[i] = new Account(Z-i);
         }
         
-        mExecutor = Executors.newFixedThreadPool(26);
+        mExecutor = Executors.newFixedThreadPool(4);
 
         // read transactions from input file
         String line;
         BufferedReader input =
             new BufferedReader(new FileReader(args[0]));
-
-        // TO DO: you will need to create an Executor and then modify the
-        // following loop to feed tasks to the executor instead of running them
-        // directly.  Don't modify the initialization of accounts above, or the
-        // output at the end.
 
         while ((line = input.readLine()) != null) {
             Worker w = new Worker(accounts, line);

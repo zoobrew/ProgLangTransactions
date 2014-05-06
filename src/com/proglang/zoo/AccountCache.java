@@ -21,28 +21,50 @@ public class AccountCache {
     public AccountCache(){
     }
 
+    /**
+     * get the working cache value
+     */
     public int getValue(){
     	mHasBeenRead = true;
     	return mValue;
     }
     
+    /**
+     * get the value that was peeked
+     * when the cache was created.
+     */
     public int getOrigValue(){
     	return mOrigValue;
     }
     
+    /**
+     * get the index of the 
+     * corresponding account
+     */
     public int getIndex(){
     	return mIndex;
     }
 
+    /** 
+     * set the working cache value
+     */
     public void setValue(int value){
     	mHasBeenWriten = true;
     	mValue = value;
     }
 
+    /**
+     * return if the value has been set
+     */
     public boolean hasBeenCached(){
     	return mHasBeenRead;
     }
     
+    /**
+     * returns true if cached value has 
+     * updated from the original value,
+     * otherwise returns false;
+     */
     public boolean hasBeenWriten(){
     	return mHasBeenWriten;
     }
