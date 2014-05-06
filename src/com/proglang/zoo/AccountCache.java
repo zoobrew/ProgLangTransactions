@@ -7,13 +7,15 @@ public class AccountCache {
 
 	private int mValue;
 	private int mOrigValue;
+	private int mIndex;
 	private boolean mHasBeenRead = false;
 	private boolean mHasBeenWriten = false;
 
-    public AccountCache(int initialValue){
+    public AccountCache(int initialValue, int index){
     	mValue = initialValue;
     	mOrigValue = initialValue;
     	mHasBeenRead = true;
+    	mIndex = index;
     }
 
     public AccountCache(){
@@ -26,6 +28,10 @@ public class AccountCache {
     
     public int getOrigValue(){
     	return mOrigValue;
+    }
+    
+    public int getIndex(){
+    	return mIndex;
     }
 
     public void setValue(int value){

@@ -1,5 +1,7 @@
 package com.proglang.zoo;
 
+import java.util.ArrayList;
+
 // TO DO: Worker is currently an ordinary class.
 // You will need to modify it to make it a task,
 // so it can be given to an Executor thread pool.
@@ -97,29 +99,33 @@ public class Worker implements Runnable{
     }
     
     private AccountCache initCacheAccount(AccountCache accountCache, int index){
-    	return new AccountCache(accounts[index].peek());
+    	return new AccountCache(accounts[index].peek(), index);
     }
 
     private void commitCachedTransactions(){
+    	ArrayList<AccountCache> transactions = new ArrayList<AccountCache>();
     	for (int i = 0; i < numLetters; i++){
     		if (mCachedAccounts[i] != null){
 	    		if (mCachedAccounts[i].hasBeenWriten()) {
-		    		try {
-					    accounts[i].open(true);
-					} catch (TransactionAbortException e) {
-					    // won't happen in sequential version
-						System.out.println("Aborted");
-						run();
-					}
+	    			transactions.add(mCachedAccounts[i]);
 	    		}
     		}
-    	}for (int i = 0; i < numLetters; i++){
-    		if (mCachedAccounts[i] != null){
-	    		if (mCachedAccounts[i].hasBeenWriten()) {
-		    		accounts[i].update(mCachedAccounts[i].getValue());
+    	}
+    	synchronized (transactions.get(0)) {
+	    	for(AccountCache trans : transactions){
+	    		try {
+	    			int i = trans.getIndex();
+				    accounts[i].open(false);
+				    accounts[i].verify(mCachedAccounts[i].getOrigValue());
+				    accounts[i].open(true);
+				    accounts[i].update(mCachedAccounts[i].getValue());
 		    		accounts[i].close();
-	    		}
-    		}
+				} catch (TransactionAbortException e) {
+				    // won't happen in sequential version
+					System.out.println("Aborted");
+					run();
+				}
+	    	}
     	}
     }
 }
